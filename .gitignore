@@ -1,0 +1,25 @@
+# ===== Node =====
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# ===== Vite =====
+frontend/dist/
+frontend/.vite/
+
+# ===== Strapi =====
+backend/.cache/
+backend/build/
+backend/node_modules/
+backend/.tmp/
+backend/.env
+
+# ===== Environment files =====
+.env
+.env.local
+.env.*.local
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
