@@ -44,9 +44,9 @@ export function RecommendedSection() {
   return (
     <section id="recommended" className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-4 text-center">My Recommendations</h2>
+        <h2 className="text-3xl font-semibold text-gray-800 mb-4 text-center">Ég mæli með!</h2>
         <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-          These are my favorite brands, stores, and items that I trust and use regularly in my knitting journey
+        Þetta eru uppáhalds vörumerkin mín, verslanir og hlutir sem ég treysti og nota reglulega í prjónaskapnum mínum.
         </p>
         
         <div className="grid md:grid-cols-3 gap-8">

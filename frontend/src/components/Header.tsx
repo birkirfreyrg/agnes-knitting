@@ -39,7 +39,7 @@ export function Header() {
             onClick={() => scrollToSection('posts')}
             className="text-gray-600 hover:text-gray-900 transition-colors"
           >
-            Posts
+            Færslur
           </button>
           <button
             onClick={() => scrollToSection('instagram')}
@@ -51,7 +51,7 @@ export function Header() {
             onClick={() => scrollToSection('recommended')}
             className="text-gray-600 hover:text-gray-900 transition-colors"
           >
-            Recommended
+            Ráðleggingar
           </button>
         </nav>
       </div>
