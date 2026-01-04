@@ -63,7 +63,8 @@ export default function App() {
         if (cancelled) return;
         setError((e as Error)?.message || String(e));
         setStatus("error");
-        // If Strapi fails, posts will remain empty and mock data will be used
+        // Use mock data as fallback when Strapi fails
+        setPosts(mockPosts);
       }
     }
 

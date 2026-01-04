@@ -14,13 +14,15 @@ export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionPro
   const [currentPage, setCurrentPage] = useState(1);
 
   // Sort posts by date (most recent first) and paginate
-  const { sortedPosts, totalPages, paginatedPosts } = useMemo(() => {
+  const { totalPages, paginatedPosts } = useMemo(() => {
     // Use provided posts or fallback to mock data
     const displayPosts = posts && posts.length > 0 ? posts : mockPosts;
 
     // Sort by date (most recent first)
     const sorted = [...displayPosts].sort((a, b) => {
-      return b.dateValue.getTime() - a.dateValue.getTime();
+      const dateA = a.dateValue?.getTime() ?? 0;
+      const dateB = b.dateValue?.getTime() ?? 0;
+      return dateB - dateA;
     });
 
     // Calculate pagination
@@ -30,7 +32,6 @@ export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionPro
     const paginated = sorted.slice(startIndex, endIndex);
 
     return {
-      sortedPosts: sorted,
       totalPages: total,
       paginatedPosts: paginated,
     };
