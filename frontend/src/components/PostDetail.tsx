@@ -12,21 +12,24 @@ interface PostDetailProps {
 export function PostDetail({ post, onClose }: PostDetailProps) {
   // Update URL when post opens
   useEffect(() => {
-    const newUrl = `/post/${post.slug}`;
+  const newUrl = `/post/${post.slug}`;
+
+  if (window.location.pathname !== newUrl) {
     window.history.pushState({ postId: post.id }, '', newUrl);
+  } else {
+    // ensure state exists even if URL already matches
+    window.history.replaceState({ postId: post.id }, '', newUrl);
+  }
 
-    // Handle browser back button
-    const handlePopState = (event: PopStateEvent) => {
-      if (!event.state || !event.state.postId) {
-        onClose();
-      }
-    };
+  const handlePopState = (event: PopStateEvent) => {
+    if (!event.state || !event.state.postId) onClose();
+  };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, [post.slug, post.id, onClose]);
+  window.addEventListener('popstate', handlePopState);
+  return () => window.removeEventListener('popstate', handlePopState);
+}, [post.slug, post.id, onClose]);
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -38,7 +41,7 @@ export function PostDetail({ post, onClose }: PostDetailProps) {
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span>Back to Posts</span>
+            <span>Til baka</span>
           </button>
         </div>
       </div>
