@@ -1,41 +1,63 @@
-import { Calendar, Clock } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import type { Post } from '../data/mockPosts';
+import { mockPosts } from '../data/mockPosts';
 
-interface Post {
-  id: number;
-  title: string;
-  excerpt: string;
-  image: string;
-  date: string;
-  readTime: string;
+interface PostsSectionProps {
+  posts?: Post[];
+  onPostClick: (post: Post) => void;
 }
 
-const mockPosts: Post[] = [
-  {
-    id: 1,
-    title: "Colorful Yarn Collection for Spring Projects",
-    excerpt: "Discover the most vibrant and soft yarn collections perfect for your spring knitting projects. From pastel shades to bold hues, find inspiration for your next creation.",
-    image: "https://images.unsplash.com/photo-1706864685950-c7db14f24290?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxrbml0dGluZyUyMHlhcm4lMjBjcmFmdHxlbnwxfHx8fDE3NjcxODU3NTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    date: "December 28, 2025",
-    readTime: "5 min read"
-  },
-  {
-    id: 2,
-    title: "Beginner's Guide to Cable Knitting",
-    excerpt: "Learn the art of cable knitting with this comprehensive guide. We'll walk you through the basics and show you how to create beautiful textured patterns that will elevate your projects.",
-    image: "https://images.unsplash.com/photo-1595301408991-ce3b59fd4cda?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxrbml0dGluZyUyMG5lZWRsZXMlMjB3b29sfGVufDF8fHx8MTc2NzExOTIxOXww&ixlib=rb-4.1.0&q=80&w=1080",
-    date: "December 25, 2025",
-    readTime: "8 min read"
-  }
-];
+const POSTS_PER_PAGE = 2;
 
-export function PostsSection() {
+export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Sort posts by date (most recent first) and paginate
+  const { sortedPosts, totalPages, paginatedPosts } = useMemo(() => {
+    // Use provided posts or fallback to mock data
+    const displayPosts = posts && posts.length > 0 ? posts : mockPosts;
+
+    // Sort by date (most recent first)
+    const sorted = [...displayPosts].sort((a, b) => {
+      return b.dateValue.getTime() - a.dateValue.getTime();
+    });
+
+    // Calculate pagination
+    const total = Math.ceil(sorted.length / POSTS_PER_PAGE);
+    const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+    const endIndex = startIndex + POSTS_PER_PAGE;
+    const paginated = sorted.slice(startIndex, endIndex);
+
+    return {
+      sortedPosts: sorted,
+      totalPages: total,
+      paginatedPosts: paginated,
+    };
+  }, [posts, currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of posts section
+    const postsSection = document.getElementById('posts');
+    if (postsSection) {
+      postsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <section id="posts" className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-semibold text-gray-800 mb-8">Recent Posts</h2>
-        <div className="grid md:grid-cols-2 gap-8">
-          {mockPosts.map((post) => (
-            <article key={post.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+        
+        {/* Posts Grid */}
+        <div className="grid md:grid-cols-2 gap-8 mb-8">
+          {paginatedPosts.map((post) => (
+            <article 
+              key={post.id} 
+              onClick={() => onPostClick(post)}
+              className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+            >
               <div className="aspect-video overflow-hidden">
                 <img 
                   src={post.image} 
@@ -60,8 +82,46 @@ export function PostsSection() {
             </article>
           ))}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-8">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    currentPage === page
+                      ? 'bg-gray-800 text-white border-gray-800'
+                      : 'border-gray-300 hover:bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Next page"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
 }
-
