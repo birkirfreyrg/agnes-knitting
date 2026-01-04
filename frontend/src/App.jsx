@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import { Header } from "./components/Header";
+import { PostsSection } from "./components/PostsSection";
+import { InstagramSection } from "./components/InstagramSection";
+import { RecommendedSection } from "./components/RecommendedSection";
 
 const STRAPI_URL = import.meta.env.VITE_STRAPI_URL || "http://localhost:1337";
 
@@ -104,140 +108,18 @@ export default function App() {
   }, [apiUrl]);
 
   return (
-    <div
-      style={{
-        maxWidth: 980,
-        margin: "40px auto",
-        padding: "0 16px",
-        fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial",
-      }}
-    >
-      <header style={{ marginBottom: 24 }}>
-        <h1 style={{ margin: 0, fontSize: 44 }}>
-          My Knitting Journey <span aria-hidden>🧶</span>
-        </h1>
-        <p style={{ marginTop: 10, opacity: 0.8 }}>
-          Powered by Strapi + React (Vite)
-        </p>
-      </header>
-
-      <section
-        style={{
-          display: "flex",
-          gap: 12,
-          alignItems: "center",
-          marginBottom: 18,
-          opacity: 0.8,
-          fontSize: 14,
-        }}
-      >
-        <strong>API:</strong>
-        <code style={{ padding: "2px 6px", borderRadius: 6 }}>
-          {apiUrl}
-        </code>
-      </section>
-
-      {status === "loading" && <p>Loading posts…</p>}
-
-      {status === "error" && (
-        <div style={{ padding: 12, border: "1px solid #ffb3b3", borderRadius: 8 }}>
-          <p style={{ margin: 0, color: "crimson" }}>
-            <strong>Error:</strong> {error}
-          </p>
-          <p style={{ marginTop: 8, marginBottom: 0, opacity: 0.85 }}>
-            Check:
-            {" "}
-            1) Strapi is running at {STRAPI_URL},
-            {" "}
-            2) Public role has Post.find enabled,
-            {" "}
-            3) your posts are published,
-            {" "}
-            4) CORS is not blocking requests.
-          </p>
+    <div className="min-h-screen bg-white">
+      <Header />
+      <main>
+        <PostsSection />
+        <InstagramSection />
+        <RecommendedSection />
+      </main>
+      <footer className="bg-gray-800 text-white py-8">
+        <div className="container mx-auto px-4 text-center">
+          <p>&copy; 2025 Agnes Knitting. All rights reserved.</p>
         </div>
-      )}
-
-      {status === "ready" && posts.length === 0 && (
-        <div style={{ padding: 12, border: "1px solid #ddd", borderRadius: 8 }}>
-          <p style={{ margin: 0 }}>
-            No posts returned from Strapi.
-          </p>
-          <p style={{ marginTop: 8, marginBottom: 0, opacity: 0.85 }}>
-            If you have posts in the admin UI, make sure they’re <strong>published</strong> and
-            Public permissions allow <code>find</code>.
-          </p>
-        </div>
-      )}
-
-      {status === "ready" && posts.length > 0 && (
-        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 16 }}>
-          {posts.map((p) => (
-            <li
-              key={p.id}
-              style={{
-                border: "1px solid #e5e5e5",
-                borderRadius: 14,
-                padding: 16,
-                display: "grid",
-                gridTemplateColumns: p.fullCoverUrl ? "160px 1fr" : "1fr",
-                gap: 16,
-                alignItems: "start",
-              }}
-            >
-              {p.fullCoverUrl && (
-                <img
-                  src={p.fullCoverUrl}
-                  alt={p.title || "Post cover"}
-                  style={{
-                    width: 160,
-                    height: 120,
-                    objectFit: "cover",
-                    borderRadius: 12,
-                    border: "1px solid #eee",
-                  }}
-                />
-              )}
-
-              <div>
-                <h2 style={{ margin: 0, fontSize: 22 }}>
-                  {p.title || "(Untitled post)"}
-                </h2>
-
-                {p.excerpt ? (
-                  <p style={{ marginTop: 8, marginBottom: 0, opacity: 0.85 }}>
-                    {p.excerpt}
-                  </p>
-                ) : (
-                  <p style={{ marginTop: 8, marginBottom: 0, opacity: 0.6 }}>
-                    (No excerpt field found — check your Strapi field name)
-                  </p>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {/* Optional: quick debug view (remove later) */}
-      {payload && (
-        <details style={{ marginTop: 24 }}>
-          <summary>Debug: raw API response</summary>
-          <pre
-            style={{
-              marginTop: 12,
-              padding: 12,
-              borderRadius: 10,
-              background: "#111",
-              color: "#eee",
-              overflowX: "auto",
-              fontSize: 12,
-            }}
-          >
-            {JSON.stringify(payload, null, 2)}
-          </pre>
-        </details>
-      )}
+      </footer>
     </div>
   );
 }
