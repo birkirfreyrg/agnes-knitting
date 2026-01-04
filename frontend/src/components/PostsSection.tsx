@@ -37,18 +37,25 @@ export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionPro
   }, [posts, currentPage]);
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // Scroll to top of posts section
-    const postsSection = document.getElementById('posts');
-    if (postsSection) {
-      postsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
+  setCurrentPage(page);
+
+  const postsSection = document.getElementById('posts');
+  const header = document.querySelector('header'); // or '#site-header'
+
+  if (!postsSection) return;
+
+  const headerHeight = header?.getBoundingClientRect().height ?? 0;
+  const top =
+    postsSection.getBoundingClientRect().top + window.scrollY - headerHeight - 12; // extra padding
+
+  window.scrollTo({ top, behavior: 'smooth' });
+};
+
 
   return (
     <section id="posts" className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-8">Recent Posts</h2>
+        <h2 className="text-3xl font-semibold text-gray-800 mb-8">Færslur</h2>
         
         {/* Posts Grid */}
         <div className="grid md:grid-cols-2 gap-8 mb-8">
