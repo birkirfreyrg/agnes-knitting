@@ -70,7 +70,7 @@ export function InstagramSection() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-center gap-3 mb-8">
           <Instagram className="w-8 h-8 text-pink-600" />
-          <h2 className="text-3xl font-semibold text-gray-800">@birkirfreyr95</h2>
+          <h2 className="text-3xl font-semibold text-gray-800">@agnesknitting</h2>
         </div>
         
         {loading ? (
@@ -113,7 +113,7 @@ export function InstagramSection() {
         
         <div className="text-center mt-8">
           <a 
-            href="https://instagram.com/birkirfreyr95" 
+            href="https://instagram.com/agnesknitting" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-full hover:shadow-lg transition-shadow"
