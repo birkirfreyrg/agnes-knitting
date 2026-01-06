@@ -8,7 +8,7 @@ interface PostsSectionProps {
   onPostClick: (post: Post) => void;
 }
 
-const POSTS_PER_PAGE = 2;
+const POSTS_PER_PAGE = 3;
 
 export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionProps) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,35 +54,39 @@ export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionPro
 
 
   return (
-    <section id="posts" className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-8">Færslur</h2>
+    <section id="posts" className="py-12 bg-white">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-8 text-center">Færslur</h2>
         
         {/* Posts Grid */}
-        <div className="grid md:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {paginatedPosts.map((post) => (
             <article 
               key={post.id} 
               onClick={() => onPostClick(post)}
-              className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+              className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all cursor-pointer group"
             >
-              <div className="aspect-video overflow-hidden">
+              <div className="aspect-[4/3] overflow-hidden bg-gray-100">
                 <img 
                   src={post.image} 
                   alt={post.title} 
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <div className="p-6">
-                <h3 className="text-2xl font-semibold text-gray-800 mb-3">{post.title}</h3>
-                <p className="text-gray-600 mb-4">{post.excerpt}</p>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
+              <div className="p-5">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-gray-700 transition-colors">
+                  {post.title}
+                </h3>
+                <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+                  {post.excerpt}
+                </p>
+                <div className="flex items-center gap-3 text-xs text-gray-500 pt-3 border-t border-gray-100">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5" />
                     <span>{post.date}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" />
                     <span>{post.readTime}</span>
                   </div>
                 </div>
@@ -93,14 +97,14 @@ export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionPro
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-8">
+          <div className="flex items-center justify-center gap-2 mt-10">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               aria-label="Previous page"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
 
             <div className="flex gap-1">
@@ -108,10 +112,10 @@ export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionPro
                 <button
                   key={page}
                   onClick={() => handlePageChange(page)}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                  className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
                     currentPage === page
-                      ? 'bg-gray-800 text-white border-gray-800'
-                      : 'border-gray-300 hover:bg-gray-100 text-gray-700'
+                      ? 'bg-gray-900 text-white border-gray-900'
+                      : 'border-gray-300 hover:bg-gray-50 text-gray-700'
                   }`}
                 >
                   {page}
@@ -122,10 +126,10 @@ export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionPro
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               aria-label="Next page"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         )}
