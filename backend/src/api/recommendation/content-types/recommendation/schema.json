@@ -24,7 +24,7 @@
       "required": true,
       "default": "Vara",
       "enum": [
-        "Merki",
+        "Vörumerki",
         "Búð",
         "Vara"
       ]

@@ -494,7 +494,9 @@ export interface ApiRecommendationRecommendation
       Schema.Attribute.Private;
     name: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
-    type: Schema.Attribute.Enumeration<['Merki', 'B\u00FA\u00F0', 'Vara']> &
+    type: Schema.Attribute.Enumeration<
+      ['V\u00F6rumerki', 'B\u00FA\u00F0', 'Vara']
+    > &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'Vara'>;
     updatedAt: Schema.Attribute.DateTime;

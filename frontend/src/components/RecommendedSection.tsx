@@ -6,7 +6,7 @@ import type { Recommendation } from '../utils/recommendationNormalizer';
 const mockRecommendations: Recommendation[] = [
   {
     id: 1,
-    type: 'Merki',
+    type: 'Vörumerki',
     name: 'Wool & The Gang',
     description: 'Premium sustainable yarn and knitting kits for modern makers',
     image: 'https://images.unsplash.com/photo-1706864685950-c7db14f24290?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxrbml0dGluZyUyMHlhcm4lMjBjcmFmdHxlbnwxfHx8fDE3NjcxODU3NTl8MA&ixlib=rb-4.1.0&q=80&w=400',

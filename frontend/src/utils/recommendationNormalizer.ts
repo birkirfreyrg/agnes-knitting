@@ -2,7 +2,7 @@ const STRAPI_URL = import.meta.env.VITE_STRAPI_URL || "http://localhost:1337";
 
 export interface Recommendation {
   id: number;
-  type: 'Merki' | 'Búð' | 'Vara';
+  type: 'Vörumerki' | 'Búð' | 'Vara';
   name: string;
   description: string;
   image: string;
@@ -29,9 +29,9 @@ export function normalizeStrapiRecommendations(payload: any): Recommendation[] {
     const name = attrs.name ?? attrs.title ?? "";
     const description = attrs.description ?? attrs.excerpt ?? "";
 
-    // Type field - should be 'Merki', 'Búð', or 'Vara'
+    // Type field - should be 'Vörumerki', 'Búð', or 'Vara'
     const typeRaw = attrs.type ?? "Vara";
-    const type = (typeRaw === 'Merki' || typeRaw === 'Búð' || typeRaw === 'Vara') 
+    const type = (typeRaw === 'Vörumerki' || typeRaw === 'Búð' || typeRaw === 'Vara') 
       ? typeRaw 
       : 'Vara';
 
