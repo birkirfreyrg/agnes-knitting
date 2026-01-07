@@ -8,4 +8,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  base: '/', // Use '/' for custom domain, or '/repository-name/' for GitHub Pages subpath
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+  },
 })
