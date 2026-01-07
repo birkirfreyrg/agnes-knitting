@@ -1,47 +1,19 @@
 import { useEffect, useState } from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, AlertCircle } from 'lucide-react';
 import type { Recommendation } from '../utils/recommendationNormalizer';
-
-// Fallback mock data if API fails
-const mockRecommendations: Recommendation[] = [
-  {
-    id: 1,
-    type: 'Vörumerki',
-    name: 'Wool & The Gang',
-    description: 'Premium sustainable yarn and knitting kits for modern makers',
-    image: 'https://images.unsplash.com/photo-1706864685950-c7db14f24290?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxrbml0dGluZyUyMHlhcm4lMjBjcmFmdHxlbnwxfHx8fDE3NjcxODU3NTl8MA&ixlib=rb-4.1.0&q=80&w=400',
-    link: '#'
-  },
-  {
-    id: 2,
-    type: 'Búð',
-    name: 'The Yarn Shop',
-    description: 'Local store with an amazing selection of luxury yarns and tools',
-    image: 'https://images.unsplash.com/photo-1595301408991-ce3b59fd4cda?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxrbml0dGluZyUyMG5lZWRsZXMlMjB3b29sfGVufDF8fHx8MTc2NzExOTIxOXww&ixlib=rb-4.1.0&q=80&w=400',
-    link: '#'
-  },
-  {
-    id: 3,
-    type: 'Vara',
-    name: 'ChiaoGoo Needles',
-    description: 'The best circular knitting needles with smooth joins',
-    image: 'https://images.unsplash.com/photo-1612208141706-2fbd2d45a143?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoYW5kbWFkZSUyMGtuaXR0ZWQlMjBzd2VhdGVyfGVufDF8fHx8MTc2NzE4NTc2MHww&ixlib=rb-4.1.0&q=80&w=400',
-    link: '#'
-  }
-];
-
-const STRAPI_URL = import.meta.env.VITE_STRAPI_URL || "http://localhost:1337";
+import { getStrapiUrl } from '../utils/strapiConfig';
 
 export function RecommendedSection() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadRecommendations() {
       setLoading(true);
       
       try {
-        const response = await fetch(`${STRAPI_URL}/api/recommendations?populate=*`);
+        const response = await fetch(`${getStrapiUrl()}/api/recommendations?populate=*`);
         
         if (!response.ok) {
           throw new Error(`Request failed: ${response.status} ${response.statusText}`);
@@ -53,16 +25,12 @@ export function RecommendedSection() {
         const { normalizeStrapiRecommendations } = await import('../utils/recommendationNormalizer');
         const normalized = normalizeStrapiRecommendations(json);
         
-        if (normalized.length > 0) {
-          setRecommendations(normalized);
-        } else {
-          // Fallback to mock data if no Strapi data
-          setRecommendations(mockRecommendations);
-        }
+        setRecommendations(normalized);
+        setError(null);
       } catch (error) {
         console.error('Error fetching recommendations:', error);
-        // Fallback to mock data on error
-        setRecommendations(mockRecommendations);
+        setError('Ekki tókst að sækja ráðleggingar');
+        setRecommendations([]);
       } finally {
         setLoading(false);
       }
@@ -70,8 +38,6 @@ export function RecommendedSection() {
 
     loadRecommendations();
   }, []);
-
-  const displayRecommendations = recommendations.length > 0 ? recommendations : mockRecommendations;
 
   return (
     <section id="recommended" className="py-16 bg-gray-50 mb-20">
@@ -94,9 +60,29 @@ export function RecommendedSection() {
               </div>
             ))}
           </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Ekki tókst að sækja ráðleggingar
+            </h3>
+            <p className="text-gray-600 max-w-md">
+              Því miður gátum við ekki sótt ráðleggingarnar í augnablikinu. Vinsamlegast reyndu aftur síðar.
+            </p>
+          </div>
+        ) : recommendations.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Engar ráðleggingar fundust
+            </h3>
+            <p className="text-gray-600 max-w-md">
+              Engar ráðleggingar eru tiltækar í augnablikinu. Komdu aftur síðar.
+            </p>
+          </div>
         ) : (
           <div className="grid md:grid-cols-3 gap-8">
-            {displayRecommendations.map((item) => (
+            {recommendations.map((item) => (
               <div key={item.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
                 <div className="aspect-video overflow-hidden">
                   <img 

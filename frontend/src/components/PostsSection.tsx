@@ -1,22 +1,22 @@
 import { useState, useMemo } from 'react';
-import { Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import type { Post } from '../data/mockPosts';
-import { mockPosts } from '../data/mockPosts';
 
 interface PostsSectionProps {
   posts?: Post[];
   onPostClick: (post: Post) => void;
+  status?: "idle" | "loading" | "ready" | "error";
 }
 
 const POSTS_PER_PAGE = 3;
 
-export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionProps) {
+export function PostsSection({ posts = [], onPostClick, status = "ready" }: PostsSectionProps) {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Sort posts by date (most recent first) and paginate
   const { totalPages, paginatedPosts } = useMemo(() => {
-    // Use provided posts or fallback to mock data
-    const displayPosts = posts && posts.length > 0 ? posts : mockPosts;
+    // Use provided posts
+    const displayPosts = posts && posts.length > 0 ? posts : [];
 
     // Sort by date (most recent first)
     const sorted = [...displayPosts].sort((a, b) => {
@@ -58,9 +58,53 @@ export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionPro
       <div className="container mx-auto px-4 max-w-7xl">
         <h2 className="text-2xl font-semibold text-gray-900 mb-8 text-center">Færslur</h2>
         
+        {/* Loading State */}
+        {status === "loading" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg overflow-hidden border border-gray-200">
+                <div className="aspect-[4/3] bg-gray-200 animate-pulse" />
+                <div className="p-5">
+                  <div className="h-5 bg-gray-200 rounded animate-pulse mb-3" />
+                  <div className="h-4 bg-gray-200 rounded animate-pulse mb-4" />
+                  <div className="h-3 bg-gray-200 rounded animate-pulse w-24" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Error State */}
+        {status === "error" && (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Ekki tókst að sækja færslur
+            </h3>
+            <p className="text-gray-600 max-w-md">
+              Því miður gátum við ekki sótt færslurnar í augnablikinu. Vinsamlegast reyndu aftur síðar.
+            </p>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {status === "ready" && posts.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Engar færslur fundust
+            </h3>
+            <p className="text-gray-600 max-w-md">
+              Engar færslur eru tiltækar í augnablikinu. Komdu aftur síðar til að sjá nýjar færslur.
+            </p>
+          </div>
+        )}
+
         {/* Posts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {paginatedPosts.map((post) => (
+        {status === "ready" && paginatedPosts.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {paginatedPosts.map((post) => (
             <article 
               key={post.id} 
               onClick={() => onPostClick(post)}
@@ -92,11 +136,11 @@ export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionPro
                 </div>
               </div>
             </article>
-          ))}
-        </div>
+              ))}
+            </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
+            {/* Pagination */}
+            {totalPages > 1 && (
           <div className="flex items-center justify-center gap-2 mt-10">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
@@ -132,6 +176,8 @@ export function PostsSection({ posts = mockPosts, onPostClick }: PostsSectionPro
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
+            )}
+          </>
         )}
       </div>
     </section>

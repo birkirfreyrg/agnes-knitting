@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Instagram, Heart, MessageCircle } from 'lucide-react';
+import { Instagram, Heart, MessageCircle, AlertCircle } from 'lucide-react';
 import { fetchInstagramPosts } from '../services/instagramService';
 
 interface InstagramPost {
@@ -10,60 +10,36 @@ interface InstagramPost {
   permalink: string;
 }
 
-// Fallback mock data if API fails
-const mockInstagramPosts: InstagramPost[] = [
-  {
-    id: 1,
-    image: "https://images.unsplash.com/photo-1706864685950-c7db14f24290?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxrbml0dGluZyUyMHlhcm4lMjBjcmFmdHxlbnwxfHx8fDE3NjcxODU3NTl8MA&ixlib=rb-4.1.0&q=80&w=400",
-    likes: 234,
-    comments: 12,
-    permalink: "https://instagram.com/p/example1"
-  },
-  {
-    id: 2,
-    image: "https://images.unsplash.com/photo-1595301408991-ce3b59fd4cda?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxrbml0dGluZyUyMG5lZWRsZXMlMjB3b29sfGVufDF8fHx8MTc2NzExOTIxOXww&ixlib=rb-4.1.0&q=80&w=400",
-    likes: 189,
-    comments: 8,
-    permalink: "https://instagram.com/p/example2"
-  },
-  {
-    id: 3,
-    image: "https://images.unsplash.com/photo-1612208141706-2fbd2d45a143?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoYW5kbWFkZSUyMGtuaXR0ZWQlMjBzd2VhdGVyfGVufDF8fHx8MTc2NzE4NTc2MHww&ixlib=rb-4.1.0&q=80&w=400",
-    likes: 312,
-    comments: 19,
-    permalink: "https://instagram.com/p/example3"
-  },
-  {
-    id: 4,
-    image: "https://images.unsplash.com/photo-1704652838411-4ddb18904aae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbnN0YWdyYW0lMjBwaG9uZSUyMHNvY2lhbHxlbnwxfHx8fDE3NjcwOTA5MjN8MA&ixlib=rb-4.1.0&q=80&w=400",
-    likes: 145,
-    comments: 6,
-    permalink: "https://instagram.com/p/example4"
-  }
-];
-
 export function InstagramSection() {
   const [posts, setPosts] = useState<InstagramPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadPosts() {
       setLoading(true);
-      const instagramPosts = await fetchInstagramPosts();
+      setError(null);
       
-      if (instagramPosts.length > 0) {
-        setPosts(instagramPosts);
-      } else {
-        // Fallback to mock data if API fails or no token
-        setPosts(mockInstagramPosts);
+      try {
+        const instagramPosts = await fetchInstagramPosts();
+        
+        if (instagramPosts.length > 0) {
+          setPosts(instagramPosts);
+        } else {
+          setError('Ekki tókst að sækja Instagram færslur');
+          setPosts([]);
+        }
+      } catch (err) {
+        console.error('Error loading Instagram posts:', err);
+        setError('Ekki tókst að sækja Instagram færslur');
+        setPosts([]);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
 
     loadPosts();
   }, []);
-
-  const displayPosts = posts.length > 0 ? posts : mockInstagramPosts;
 
   return (
     <section id="instagram" className="py-16 bg-white">
@@ -79,9 +55,28 @@ export function InstagramSection() {
               <div key={i} className="aspect-square bg-gray-200 animate-pulse rounded-lg" />
             ))}
           </div>
+        ) : error || posts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Ekki tókst að sækja Instagram færslur
+            </h3>
+            <p className="text-gray-600 max-w-md mb-4">
+              Því miður gátum við ekki sótt Instagram færslurnar í augnablikinu.
+            </p>
+            <a 
+              href="https://instagram.com/agnesknitting" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-full hover:shadow-lg transition-shadow"
+            >
+              <Instagram className="w-5 h-5" />
+              <span>Vertu með á Instagram</span>
+            </a>
+          </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {displayPosts.map((post) => (
+            {posts.map((post) => (
               <a
                 key={post.id}
                 href={post.permalink}

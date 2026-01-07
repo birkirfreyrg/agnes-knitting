@@ -6,9 +6,7 @@ import { RecommendedSection } from "./components/RecommendedSection";
 import { PostDetail } from "./components/PostDetail";
 import type { Post } from "./data/mockPosts";
 import { normalizeStrapiPosts } from "./utils/strapiNormalizer";
-import { mockPosts } from "./data/mockPosts";
-
-const STRAPI_URL = import.meta.env.VITE_STRAPI_URL || "http://localhost:1337";
+import { getStrapiUrl } from "./utils/strapiConfig";
 
 export default function App() {
   const [payload, setPayload] = useState<any>(null);
@@ -33,7 +31,7 @@ export default function App() {
 
   const apiUrl = useMemo(() => {
     // populate=* is fine for local dev; later you may want to be explicit for performance
-    return `${STRAPI_URL}/api/posts?populate=*`;
+    return `${getStrapiUrl()}/api/posts?populate=*`;
   }, []);
 
   useEffect(() => {
@@ -57,14 +55,13 @@ export default function App() {
 
         setPayload(json);
         const normalizedPosts = normalizeStrapiPosts(json);
-        setPosts(normalizedPosts.length > 0 ? normalizedPosts : mockPosts);
+        setPosts(normalizedPosts);
         setStatus("ready");
       } catch (e) {
         if (cancelled) return;
         setError((e as Error)?.message || String(e));
         setStatus("error");
-        // Use mock data as fallback when Strapi fails
-        setPosts(mockPosts);
+        setPosts([]);
       }
     }
 
@@ -94,7 +91,7 @@ export default function App() {
     <div className="min-h-screen bg-white">
       <Header />
       <main>
-        <PostsSection posts={posts} onPostClick={setSelectedPost} />
+        <PostsSection posts={posts} onPostClick={setSelectedPost} status={status} />
         <InstagramSection />
         <RecommendedSection />
       </main>

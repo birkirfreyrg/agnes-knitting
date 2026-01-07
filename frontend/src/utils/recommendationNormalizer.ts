@@ -1,4 +1,4 @@
-const STRAPI_URL = import.meta.env.VITE_STRAPI_URL || "http://localhost:1337";
+import { getStrapiUrl } from './strapiConfig';
 
 export interface Recommendation {
   id: number;
@@ -50,12 +50,21 @@ export function normalizeStrapiRecommendations(payload: any): Recommendation[] {
       imageRel?.url ??
       null;
 
-    const fullImageUrl =
-      imageUrl && imageUrl.startsWith("http")
-        ? imageUrl
-        : imageUrl
-          ? `${STRAPI_URL}${imageUrl}`
-          : "";
+    // Handle image URLs - Strapi Cloud may return full URLs or relative paths
+    const strapiUrl = getStrapiUrl();
+    let fullImageUrl = "";
+    if (imageUrl) {
+      if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+        // Already a full URL (Strapi Cloud)
+        fullImageUrl = imageUrl;
+      } else if (imageUrl.startsWith("/")) {
+        // Relative path - prepend Strapi URL
+        fullImageUrl = `${strapiUrl}${imageUrl}`;
+      } else {
+        // Path without leading slash
+        fullImageUrl = `${strapiUrl}/${imageUrl}`;
+      }
+    }
 
     // Link field
     const link = attrs.link ?? attrs.url ?? "#";

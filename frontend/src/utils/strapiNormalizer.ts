@@ -1,6 +1,5 @@
 import type { Post } from '../data/mockPosts';
-
-const STRAPI_URL = import.meta.env.VITE_STRAPI_URL || "http://localhost:1337";
+import { getStrapiUrl } from './strapiConfig';
 
 /**
  * Normalizes Strapi post data to match the Post interface
@@ -37,12 +36,21 @@ export function normalizeStrapiPosts(payload: any): Post[] {
       coverRel?.url ??
       null;
 
-    const fullCoverUrl =
-      coverUrl && coverUrl.startsWith("http")
-        ? coverUrl
-        : coverUrl
-          ? `${STRAPI_URL}${coverUrl}`
-          : "";
+    // Handle image URLs - Strapi Cloud may return full URLs or relative paths
+    const strapiUrl = getStrapiUrl();
+    let fullCoverUrl = "";
+    if (coverUrl) {
+      if (coverUrl.startsWith("http://") || coverUrl.startsWith("https://")) {
+        // Already a full URL (Strapi Cloud)
+        fullCoverUrl = coverUrl;
+      } else if (coverUrl.startsWith("/")) {
+        // Relative path - prepend Strapi URL
+        fullCoverUrl = `${strapiUrl}${coverUrl}`;
+      } else {
+        // Path without leading slash
+        fullCoverUrl = `${strapiUrl}/${coverUrl}`;
+      }
+    }
 
     // Handle date - format from ISO to readable format
     const dateValue = attrs.date ?? attrs.publishedAt ?? attrs.createdAt;
