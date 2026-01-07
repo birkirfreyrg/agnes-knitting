@@ -41,6 +41,21 @@ jobs:
           VITE_INSTAGRAM_USER_ID: ${{ secrets.VITE_INSTAGRAM_USER_ID }}
         run: npm run build
 
+      - name: Verify build output
+        working-directory: ./frontend
+        run: |
+          echo "Checking build output..."
+          ls -la dist/
+          if [ ! -f "dist/index.html" ]; then
+            echo "ERROR: index.html not found in dist/"
+            exit 1
+          fi
+          if [ ! -f "dist/CNAME" ]; then
+            echo "WARNING: CNAME not found in dist/, copying from public/"
+            cp public/CNAME dist/CNAME || echo "CNAME copy failed"
+          fi
+          echo "Build verification complete"
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
