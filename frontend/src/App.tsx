@@ -7,9 +7,9 @@ import { PostDetail } from "./components/PostDetail";
 import type { Post } from "./data/mockPosts";
 import { normalizeStrapiPosts } from "./utils/strapiNormalizer";
 import { getStrapiUrl } from "./utils/strapiConfig";
+import { fetchWithCache } from "./utils/strapiCache";
 
 export default function App() {
-  const [payload, setPayload] = useState<any>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [error, setError] = useState<string>("");
@@ -38,25 +38,49 @@ export default function App() {
     let cancelled = false;
 
     async function load() {
-      setStatus("loading");
       setError("");
 
       try {
-        const res = await fetch(apiUrl);
-        if (!res.ok) {
-          throw new Error(`Request failed: ${res.status} ${res.statusText}`);
+        // Use cache-first strategy: get cached data immediately, then fetch fresh
+        const { cached, fresh } = await fetchWithCache(
+          apiUrl,
+          'posts',
+          normalizeStrapiPosts,
+          5 * 60 * 1000 // 5 minutes cache TTL
+        );
+
+        // If we have cached data, show it immediately
+        if (cached && cached.length > 0) {
+          if (cancelled) return;
+          setPosts(cached);
+          setStatus("ready");
+        } else {
+          // No cache, show loading state
+          if (cancelled) return;
+          setStatus("loading");
         }
 
-        const json = await res.json();
+        // Fetch fresh data in background (this will update cache and UI)
+        try {
+          const freshPosts = await fresh();
 
-        if (cancelled) return;
+          if (cancelled) return;
 
-        console.log("STRAPI RESPONSE:", json);
-
-        setPayload(json);
-        const normalizedPosts = normalizeStrapiPosts(json);
-        setPosts(normalizedPosts);
-        setStatus("ready");
+          console.log("STRAPI RESPONSE (fresh):", freshPosts);
+          setPosts(freshPosts);
+          setStatus("ready");
+        } catch (fetchError) {
+          // If fetch fails but we have cached data, keep showing it
+          if (cancelled) return;
+          if (cached && cached.length > 0) {
+            // Keep showing cached data, but log the error
+            console.warn("Failed to fetch fresh posts, using cached data:", fetchError);
+            setStatus("ready");
+          } else {
+            // No cache and fetch failed - show error
+            throw fetchError;
+          }
+        }
       } catch (e) {
         if (cancelled) return;
         setError((e as Error)?.message || String(e));

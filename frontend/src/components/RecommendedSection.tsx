@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ExternalLink, AlertCircle } from 'lucide-react';
 import type { Recommendation } from '../utils/recommendationNormalizer';
 import { getStrapiUrl } from '../utils/strapiConfig';
+import { fetchWithCache } from '../utils/strapiCache';
 
 export function RecommendedSection() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
@@ -9,34 +10,73 @@ export function RecommendedSection() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadRecommendations() {
-      setLoading(true);
+      setError(null);
       
       try {
-        const response = await fetch(`${getStrapiUrl()}/api/recommendations?populate=*`);
-        
-        if (!response.ok) {
-          throw new Error(`Request failed: ${response.status} ${response.statusText}`);
-        }
-
-        const json = await response.json();
+        const url = `${getStrapiUrl()}/api/recommendations?populate=*`;
         
         // Import the normalizer dynamically to avoid circular dependencies
         const { normalizeStrapiRecommendations } = await import('../utils/recommendationNormalizer');
-        const normalized = normalizeStrapiRecommendations(json);
         
-        setRecommendations(normalized);
-        setError(null);
+        // Use cache-first strategy: get cached data immediately, then fetch fresh
+        const { cached, fresh } = await fetchWithCache(
+          url,
+          'recommendations',
+          normalizeStrapiRecommendations,
+          5 * 60 * 1000 // 5 minutes cache TTL
+        );
+
+        // If we have cached data, show it immediately
+        if (cached && cached.length > 0) {
+          if (cancelled) return;
+          setRecommendations(cached);
+          setLoading(false);
+          setError(null);
+        } else {
+          // No cache, show loading state
+          if (cancelled) return;
+          setLoading(true);
+        }
+
+        // Fetch fresh data in background (this will update cache and UI)
+        try {
+          const freshRecommendations = await fresh();
+
+          if (cancelled) return;
+
+          setRecommendations(freshRecommendations);
+          setLoading(false);
+          setError(null);
+        } catch (fetchError) {
+          // If fetch fails but we have cached data, keep showing it
+          if (cancelled) return;
+          if (cached && cached.length > 0) {
+            // Keep showing cached data, but log the error
+            console.warn("Failed to fetch fresh recommendations, using cached data:", fetchError);
+            setLoading(false);
+            setError(null);
+          } else {
+            // No cache and fetch failed - show error
+            throw fetchError;
+          }
+        }
       } catch (error) {
+        if (cancelled) return;
         console.error('Error fetching recommendations:', error);
         setError('Ekki tókst að sækja ráðleggingar');
         setRecommendations([]);
-      } finally {
         setLoading(false);
       }
     }
 
     loadRecommendations();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
