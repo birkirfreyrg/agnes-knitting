@@ -16,7 +16,15 @@ export function RecommendedSection() {
       setError(null);
       
       try {
-        const url = `${getStrapiUrl()}/api/recommendations?populate=*`;
+        // Optimized query: only populate image (not all relations)
+        // Sort by creation date descending and limit to 50 recommendations
+        // This is much faster than populate=* which loads all relations
+        const params = new URLSearchParams({
+          'populate': 'image',
+          'sort': 'createdAt:desc',
+          'pagination[limit]': '50',
+        });
+        const url = `${getStrapiUrl()}/api/recommendations?${params.toString()}`;
         
         // Import the normalizer dynamically to avoid circular dependencies
         const { normalizeStrapiRecommendations } = await import('../utils/recommendationNormalizer');
@@ -26,7 +34,7 @@ export function RecommendedSection() {
           url,
           'recommendations',
           normalizeStrapiRecommendations,
-          5 * 60 * 1000 // 5 minutes cache TTL
+          30 * 60 * 1000 // 30 minutes cache TTL (recommendations don't change frequently)
         );
 
         // If we have cached data, show it immediately

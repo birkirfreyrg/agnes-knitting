@@ -122,7 +122,18 @@ export async function fetchWithCache<T, R>(
   if (!freshPromise) {
     freshPromise = (async (): Promise<R> => {
       try {
-        const response = await fetch(url);
+        // Use AbortController for timeout to prevent hanging requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        
+        const response = await fetch(url, {
+          signal: controller.signal,
+          // Browser automatically handles compression via Accept-Encoding header
+          // Keep-alive is handled by the browser automatically
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (!response.ok) {
           throw new Error(`Request failed: ${response.status} ${response.statusText}`);
         }
@@ -141,7 +152,13 @@ export async function fetchWithCache<T, R>(
         // Remove from ongoing fetches on error
         ongoingFetches.delete(cacheKey);
         
-        console.error(`Error fetching ${cacheKey}:`, error);
+        // Handle timeout/abort errors
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.error(`Request timeout for ${cacheKey}`);
+        } else {
+          console.error(`Error fetching ${cacheKey}:`, error);
+        }
+        
         // If we have cached data and fetch fails, return cached data as fallback
         if (cached) {
           console.warn(`Using cached data for ${cacheKey} due to fetch error`);

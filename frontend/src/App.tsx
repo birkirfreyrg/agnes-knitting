@@ -30,8 +30,15 @@ export default function App() {
   }, [posts]);
 
   const apiUrl = useMemo(() => {
-    // populate=* is fine for local dev; later you may want to be explicit for performance
-    return `${getStrapiUrl()}/api/posts?populate=*`;
+    // Optimized query: only populate coverImage (not all relations)
+    // Sort by date descending (newest first) and limit to 100 posts
+    // This is much faster than populate=* which loads all relations
+    const params = new URLSearchParams({
+      'populate': 'coverImage',
+      'sort': 'date:desc',
+      'pagination[limit]': '100',
+    });
+    return `${getStrapiUrl()}/api/posts?${params.toString()}`;
   }, []);
 
   useEffect(() => {
@@ -46,7 +53,7 @@ export default function App() {
           apiUrl,
           'posts',
           normalizeStrapiPosts,
-          5 * 60 * 1000 // 5 minutes cache TTL
+          30 * 60 * 1000 // 30 minutes cache TTL (posts don't change frequently)
         );
 
         // If we have cached data, show it immediately
