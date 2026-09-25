@@ -11,5 +11,5 @@ export default async function Preview({ params }: { params: Promise<{ slug: stri
   const { slug } = await params
   const result = await payload.find({ collection: 'posts', user, overrideAccess: false, draft: true, where: { slug: { equals: slug } }, limit: 1, depth: 1 })
   if (!result.docs[0]) notFound()
-  return <><div className="bg-amber-100 px-4 py-3 text-center">Forskoðun — aðeins sýnilegt innskráðum ritstjórum</div><PostDetail post={displayPost(result.docs[0])}/></>
+  return <><div className="bg-amber-100 px-4 py-3 text-center">Forskoðun: aðeins sýnilegt innskráðum ritstjórum</div><PostDetail post={displayPost(result.docs[0])}/></>
 }
