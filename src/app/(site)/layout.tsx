@@ -4,6 +4,7 @@ import './styles.css'
 export const metadata: Metadata = {
   metadataBase: new URL(siteURL), title: { default: 'Agnes Knitting', template: '%s | Agnes Knitting' },
   description: 'Prjónaskapur, innblástur og uppáhalds vörurnar mínar.',
+  icons: { icon: { url: '/agnes_logo.jpg', type: 'image/jpeg' }, apple: '/agnes_logo.jpg' },
   robots: process.env.VERCEL_ENV === 'preview' ? { index: false, follow: false } : undefined,
 }
 export default function Layout({ children }: { children: React.ReactNode }) {
