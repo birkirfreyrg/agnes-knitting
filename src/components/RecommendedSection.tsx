@@ -6,7 +6,7 @@ export function RecommendedSection({ recommendations }: { recommendations: Displ
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-semibold text-gray-800 mb-4 text-center">Ég mæli með!</h2>
         <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-          Þetta eru uppáhalds vörumerkin mín, verslanir og hlutir sem ég treysti og nota reglulega í prjónaskapnum mínum.
+          Garn, hönnun og verslanir sem hafa komið við sögu í verkefnunum mínum. Myndirnar sýna mitt eigið prjón úr garninu.
         </p>
         
         {recommendations.length === 0 ? (

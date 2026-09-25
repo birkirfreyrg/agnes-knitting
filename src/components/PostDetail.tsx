@@ -43,6 +43,8 @@ export function PostDetail({ post }: PostDetailProps) {
           </div>
         </header>
 
+        {post.image && <img src={post.image} alt={post.title} className="w-full max-h-[650px] object-contain rounded-lg mb-10 bg-gray-50" />}
+
         {/* Main Content - Markdown */}
         <div className="prose prose-lg max-w-none">
           <ReactMarkdown
@@ -99,7 +101,7 @@ export function PostDetail({ post }: PostDetailProps) {
           <div className="mt-12 pt-8 border-t border-gray-200">
             <div className="flex items-center gap-2 mb-4">
               <Tag className="w-4 h-4 text-gray-400" />
-              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Tags</h3>
+              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Efnisorð</h3>
             </div>
             <div className="flex flex-wrap gap-2">
               {post.tags.map((tag, index) => (

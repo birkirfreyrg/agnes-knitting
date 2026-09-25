@@ -8,6 +8,7 @@ export function InstagramSection({ posts }: { posts: InstagramPost[] }) {
           <Instagram className="w-8 h-8 text-pink-600" />
           <h2 className="text-3xl font-semibold text-gray-800">@agnesknitting</h2>
         </div>
+        {posts.length > 0 && <p className="text-gray-600 text-center max-w-2xl mx-auto mb-8">Fylgstu með því sem er á prjónunum, nýjustu flíkunum og litunum sem verða fyrir valinu.</p>}
         
         {posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
