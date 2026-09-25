@@ -16,7 +16,7 @@ if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN) throw new Error('V
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET,
   // Keep admin API requests on the current origin, including Vercel aliases.
-  csrf: [process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000', ...[process.env.VERCEL_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map((host) => `https://${host}`)],
+  csrf: [process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000', 'https://agnes-knitting.vercel.app', 'https://agnes-knitting-birkir-freyr-gudbjartssons-projects.vercel.app', ...[process.env.VERCEL_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map((host) => `https://${host}`)],
   admin: { user: 'users', importMap: { baseDir: dirname }, meta: { titleSuffix: '— Agnes Knitting' } },
   collections: [Users, Media, Posts, Recommendations],
   db: postgresAdapter({ pool: { connectionString: process.env.DATABASE_URL }, migrationDir: path.resolve(dirname, 'migrations'), push: process.env.NODE_ENV !== 'production' }),
